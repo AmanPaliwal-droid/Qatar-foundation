@@ -21,8 +21,12 @@ def create_app():
     bcrypt.init_app(app)
 
     # ── Blueprints ──────────────────────────────────────────────────────
+    #from routes.auth import auth_bp
+    #app.register_blueprint(auth_bp)
     from routes.auth import auth_bp
+    from routes.opportunities import opp_bp
     app.register_blueprint(auth_bp)
+    app.register_blueprint(opp_bp)
 
     # ── Create tables ───────────────────────────────────────────────────
     with app.app_context():
