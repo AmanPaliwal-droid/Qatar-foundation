@@ -1,3 +1,5 @@
+import sys, os
+sys.path.insert(0, os.path.dirname(__file__))
 from flask import Flask, render_template, redirect, url_for, request
 from extensions import db, bcrypt
 from datetime import timedelta
