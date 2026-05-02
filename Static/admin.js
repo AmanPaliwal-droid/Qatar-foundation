@@ -117,6 +117,7 @@ document.querySelectorAll('.nav-item[data-page]').forEach(item => {
         } else if (page === 'opportunity') {
             document.getElementById('opportunitySection').classList.add('active');
             document.getElementById('pageTitle').textContent = 'Opportunity Management';
+            loadOpportunities();
         } else if (page === 'reports') {
             document.getElementById('reportsSection').classList.add('active');
             document.getElementById('pageTitle').textContent = 'Reports and Analytics';
@@ -244,24 +245,113 @@ document.getElementById('courseModal').addEventListener('click', function(e) {
 });
 
 // ===== OPPORTUNITY DETAILS MODAL =====
-function openOpportunityDetails(title, details) {
-    document.getElementById('opportunityDetailTitle').textContent = title;
-    document.getElementById('opportunityDetailDuration').textContent = details.duration;
-    document.getElementById('opportunityDetailStartDate').textContent = details.startDate;
-    document.getElementById('opportunityDetailApplicants').textContent = details.applicants;
-    document.getElementById('opportunityDetailDescription').textContent = details.description;
-    document.getElementById('opportunityDetailFuture').textContent = details.futureOpportunities;
-    document.getElementById('opportunityDetailPrereqs').textContent = details.prerequisites;
-    
-    const skillsContainer = document.getElementById('opportunityDetailSkills');
-    skillsContainer.innerHTML = '';
-    details.skills.forEach(skill => {
+// ═══════════════════════════════════════════════════════
+// OPPORTUNITY MANAGEMENT — full backend-wired implementation
+// US-2.1  View, US-2.2 Create, US-2.3 Persist,
+// US-2.4  Details, US-2.5 Edit, US-2.6 Delete
+// ═══════════════════════════════════════════════════════
+
+// ── helpers ─────────────────────────────────────────────
+function escapeHtml(str) {
+    return String(str)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+function _categoryLabel(cat) {
+    const map = {technology:'Technology', business:'Business', design:'Design',
+                 marketing:'Marketing', data:'Data Science', other:'Other'};
+    return map[cat] || cat;
+}
+
+// ── grid render helpers ──────────────────────────────────
+function _buildCard(opp) {
+    const card = document.createElement('div');
+    card.className = 'opportunity-card';
+    card.dataset.id = opp.id;
+
+    const skills = Array.isArray(opp.skills) ? opp.skills : opp.skills.split(',').map(s=>s.trim()).filter(Boolean);
+    const skillTags = skills.map(s => `<span class="skill-tag">${escapeHtml(s)}</span>`).join('');
+    const applicantsLabel = opp.max_applicants != null ? `Max ${opp.max_applicants} applicants` : '0 applicants';
+
+    card.innerHTML = `
+        <div class="opportunity-card-header">
+            <h5>${escapeHtml(opp.name)}</h5>
+            <div class="opportunity-meta">
+                <span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${escapeHtml(opp.duration)}</span>
+                <span><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>${escapeHtml(opp.start_date)}</span>
+                <span style="background:var(--qf-mint-pale);color:var(--qf-green-dark);padding:2px 8px;border-radius:10px;font-weight:500;">${escapeHtml(_categoryLabel(opp.category))}</span>
+            </div>
+        </div>
+        <p class="opportunity-description">${escapeHtml(opp.description)}</p>
+        <div class="opportunity-skills">
+            <div class="opportunity-skills-label">Skills You'll Gain</div>
+            <div class="skills-tags">${skillTags}</div>
+        </div>
+        <div class="opportunity-footer">
+            <span class="applicants-count">${escapeHtml(applicantsLabel)}</span>
+            <div style="display:flex;gap:8px;">
+                <button class="view-course-btn opp-view-btn" style="width:auto;padding:8px 14px;">View Details</button>
+                <button class="view-course-btn opp-edit-btn" style="width:auto;padding:8px 14px;background:var(--qf-green-dark);">Edit</button>
+                <button class="view-course-btn opp-delete-btn" style="width:auto;padding:8px 14px;background:var(--qf-red);">Delete</button>
+            </div>
+        </div>`;
+
+    // View Details
+    card.querySelector('.opp-view-btn').addEventListener('click', () => openOpportunityDetails(opp));
+    // Edit
+    card.querySelector('.opp-edit-btn').addEventListener('click', () => openOpportunityModal(opp));
+    // Delete
+    card.querySelector('.opp-delete-btn').addEventListener('click', () => openDeleteConfirm(opp));
+
+    return card;
+}
+
+function _refreshGrid(opps) {
+    const grid = document.getElementById('opportunitiesGrid');
+    const empty = document.getElementById('oppEmptyState');
+    grid.innerHTML = '';
+    if (!opps || opps.length === 0) {
+        grid.style.display = 'none';
+        empty.style.display = 'block';
+    } else {
+        grid.style.display = '';
+        empty.style.display = 'none';
+        opps.forEach(o => grid.appendChild(_buildCard(o)));
+    }
+}
+
+// ── US-2.1  Load opportunities on tab open ───────────────
+async function loadOpportunities() {
+    try {
+        const res = await fetch('/api/opportunities');
+        const data = await res.json();
+        if (data.success) _refreshGrid(data.opportunities);
+    } catch (e) { console.error('Failed to load opportunities', e); }
+}
+
+// ── US-2.4  Details modal ────────────────────────────────
+function openOpportunityDetails(opp) {
+    const skills = Array.isArray(opp.skills) ? opp.skills : opp.skills.split(',').map(s=>s.trim()).filter(Boolean);
+    document.getElementById('opportunityDetailTitle').textContent = opp.name;
+    document.getElementById('opportunityDetailDuration').textContent = opp.duration;
+    document.getElementById('opportunityDetailStartDate').textContent = opp.start_date;
+    document.getElementById('opportunityDetailApplicants').textContent = opp.max_applicants != null ? opp.max_applicants : '—';
+    document.getElementById('opportunityDetailCategory').textContent = _categoryLabel(opp.category);
+    document.getElementById('opportunityDetailDescription').textContent = opp.description;
+    document.getElementById('opportunityDetailFuture').textContent = opp.future_opportunities;
+    document.getElementById('opportunityDetailPrereqs').textContent = opp.max_applicants != null ? `Max ${opp.max_applicants} applicants allowed` : 'No limit set';
+
+    const sc = document.getElementById('opportunityDetailSkills');
+    sc.innerHTML = '';
+    skills.forEach(s => {
         const tag = document.createElement('span');
         tag.className = 'skill-tag';
-        tag.textContent = skill;
-        skillsContainer.appendChild(tag);
+        tag.textContent = s;
+        sc.appendChild(tag);
     });
-    
+
     document.getElementById('opportunityDetailsModal').classList.add('active');
 }
 
@@ -275,9 +365,7 @@ function applyToOpportunity() {
 }
 
 document.getElementById('opportunityDetailsModal').addEventListener('click', function(e) {
-    if (e.target === this) {
-        closeOpportunityDetailsModal();
-    }
+    if (e.target === this) closeOpportunityDetailsModal();
 });
 
 // ===== COLLABORATOR COURSES MODAL =====
@@ -313,7 +401,37 @@ document.getElementById('collaboratorCoursesModal').addEventListener('click', fu
 });
 
 // ===== OPPORTUNITY MODAL =====
-function openOpportunityModal() {
+// ── US-2.2 / US-2.5  Create & Edit modal ─────────────────
+function openOpportunityModal(opp = null) {
+    const form   = document.getElementById('opportunityForm');
+    const title  = document.getElementById('opportunityModalTitle');
+    const submitBtn = document.getElementById('oppSubmitBtn');
+    const editId = document.getElementById('oppEditId');
+
+    form.reset();
+
+    if (opp) {
+        // Edit mode — pre-fill
+        title.textContent = 'Edit Opportunity';
+        submitBtn.textContent = 'Save Changes';
+        editId.value = opp.id;
+
+        document.getElementById('oppName').value         = opp.name        || '';
+        document.getElementById('oppDuration').value     = opp.duration    || '';
+        document.getElementById('oppStartDate').value    = opp.start_date  || '';
+        document.getElementById('oppDescription').value  = opp.description || '';
+        const skills = Array.isArray(opp.skills) ? opp.skills.join(', ') : opp.skills;
+        document.getElementById('oppSkills').value       = skills           || '';
+        document.getElementById('oppCategory').value     = opp.category    || '';
+        document.getElementById('oppFuture').value       = opp.future_opportunities || '';
+        document.getElementById('oppMaxApplicants').value = opp.max_applicants != null ? opp.max_applicants : '';
+    } else {
+        // Create mode
+        title.textContent = 'Add New Opportunity';
+        submitBtn.textContent = 'Create Opportunity';
+        editId.value = '';
+    }
+
     document.getElementById('opportunityModal').classList.add('active');
 }
 
@@ -321,100 +439,115 @@ function closeOpportunityModal() {
     document.getElementById('opportunityModal').classList.remove('active');
 }
 
-// Close modal when clicking outside
 document.getElementById('opportunityModal').addEventListener('click', function(e) {
-    if (e.target === this) {
-        closeOpportunityModal();
+    if (e.target === this) closeOpportunityModal();
+});
+
+// Form submit — handles both Create (POST) and Edit (PUT)
+document.getElementById('opportunityForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const editId   = document.getElementById('oppEditId').value.trim();
+    const name     = document.getElementById('oppName').value.trim();
+    const duration = document.getElementById('oppDuration').value.trim();
+    const startDate= document.getElementById('oppStartDate').value.trim();
+    const description = document.getElementById('oppDescription').value.trim();
+    const skillsRaw   = document.getElementById('oppSkills').value.trim();
+    const category    = document.getElementById('oppCategory').value;
+    const futureOpportunities = document.getElementById('oppFuture').value.trim();
+    const maxApplicants = document.getElementById('oppMaxApplicants').value.trim();
+
+    if (!name || !duration || !startDate || !description || !skillsRaw || !category || !futureOpportunities) {
+        showToast('Please fill in all required fields.');
+        return;
+    }
+
+    const payload = {
+        name, duration, start_date: startDate, description,
+        skills: skillsRaw, category, future_opportunities: futureOpportunities,
+        max_applicants: maxApplicants || null
+    };
+
+    const btn = document.getElementById('oppSubmitBtn');
+    btn.disabled = true;
+    const origText = btn.textContent;
+    btn.textContent = 'Saving…';
+
+    try {
+        const isEdit = Boolean(editId);
+        const url    = isEdit ? `/api/opportunities/${editId}` : '/api/opportunities';
+        const method = isEdit ? 'PUT' : 'POST';
+
+        const res  = await fetch(url, {
+            method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+
+        if (data.success) {
+            showToast(isEdit ? 'Opportunity updated successfully!' : 'Opportunity created successfully!');
+            closeOpportunityModal();
+            await loadOpportunities();   // US-2.3 — always re-fetch from DB
+        } else {
+            const msgs = Object.values(data.errors || {}).join(' ');
+            showToast(msgs || data.message || 'Could not save opportunity.');
+        }
+    } catch (err) {
+        showToast('Server error. Please try again.');
+    } finally {
+        btn.disabled = false;
+        btn.textContent = origText;
     }
 });
 
-// Handle opportunity form submission
-        document.getElementById('opportunityForm').addEventListener('submit', function(e) {
-            e.preventDefault();
+// ── US-2.6  Delete confirmation ───────────────────────────
+let _pendingDeleteId = null;
 
-            // collect values
-            const name = document.getElementById('oppName').value.trim();
-            const duration = document.getElementById('oppDuration').value.trim();
-            const startDate = document.getElementById('oppStartDate').value;
-            const description = document.getElementById('oppDescription').value.trim();
-            const skillsRaw = document.getElementById('oppSkills').value.trim();
-            const category = document.getElementById('oppCategory').value;
-            const futureOpportunities = document.getElementById('oppFuture').value.trim();
-            const maxApplicants = document.getElementById('oppMaxApplicants').value.trim();
+function openDeleteConfirm(opp) {
+    _pendingDeleteId = opp.id;
+    document.getElementById('deleteConfirmName').textContent = `"${opp.name}"`;
+    document.getElementById('deleteConfirmModal').classList.add('active');
+}
 
-            // basic validation
-            if (!name || !duration || !startDate || !description || !skillsRaw || !category || !futureOpportunities) {
-                showToast('Please fill all required fields');
-                return;
-            }
+function closeDeleteConfirm() {
+    _pendingDeleteId = null;
+    document.getElementById('deleteConfirmModal').classList.remove('active');
+}
 
-            // parse skills
-            const skills = skillsRaw.split(',').map(s => s.trim()).filter(Boolean);
+document.getElementById('deleteConfirmCancel').addEventListener('click', closeDeleteConfirm);
+document.getElementById('deleteConfirmModal').addEventListener('click', function(e) {
+    if (e.target === this) closeDeleteConfirm();
+});
 
-            // create opportunity card element
-            const card = document.createElement('div');
-            card.className = 'opportunity-card';
+document.getElementById('deleteConfirmProceed').addEventListener('click', async function() {
+    if (!_pendingDeleteId) return;
+    const id = _pendingDeleteId;
+    closeDeleteConfirm();
 
-            // header and meta
-            const headerHtml = `
-                <div class="opportunity-card-header">
-                    <h5>${escapeHtml(name)}</h5>
-                    <div class="opportunity-meta">
-                        <span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>${escapeHtml(duration)}</span>
-                        <span><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>${escapeHtml(startDate)}</span>
-                    </div>
-                </div>
-                <p class="opportunity-description">${escapeHtml(description)}</p>
-            `;
-
-            // skills tags
-            const skillsHtml = `<div class="opportunity-skills"><div class="opportunity-skills-label">Skills You'll Gain</div><div class="skills-tags">
-                ${skills.map(s => `<span class="skill-tag">${escapeHtml(s)}</span>`).join('')}
-            </div></div>`;
-
-            // footer
-            const applicantsCount = maxApplicants ? `${parseInt(maxApplicants,10)} applicants` : '0 applicants';
-            const footerHtml = `
-                <div class="opportunity-footer">
-                    <span class="applicants-count">${escapeHtml(applicantsCount)}</span>
-                    <button class="view-course-btn" style="width: auto; padding: 8px 16px;">View Details</button>
-                </div>
-            `;
-
-            card.innerHTML = headerHtml + skillsHtml + footerHtml;
-
-            // wire up the View Details button to open details modal
-            const viewBtn = card.querySelector('.view-course-btn');
-            viewBtn.addEventListener('click', function() {
-                openOpportunityDetails(name, {
-                    duration: duration,
-                    startDate: startDate,
-                    description: description,
-                    skills: skills,
-                    applicants: maxApplicants ? parseInt(maxApplicants,10) : 0,
-                    futureOpportunities: futureOpportunities,
-                    prerequisites: ''
-                });
-            });
-
-            // append to grid
-            const grid = document.querySelector('.opportunities-grid');
-            if (grid) grid.appendChild(card);
-
-            showToast('Opportunity created successfully!');
-            closeOpportunityModal();
-            this.reset();
-        });
-
-        // small helper to avoid HTML injection when inserting text
-        function escapeHtml(str) {
-            return String(str)
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;')
-                .replace(/'/g, '&#39;');
+    try {
+        const res  = await fetch(`/api/opportunities/${id}`, { method: 'DELETE' });
+        const data = await res.json();
+        if (data.success) {
+            showToast('Opportunity deleted.');
+            await loadOpportunities();
+        } else {
+            showToast(data.message || 'Could not delete opportunity.');
         }
+    } catch (err) {
+        showToast('Server error. Please try again.');
+    }
+});
+
+// small helper to avoid HTML injection when inserting text
+function escapeHtml(str) {
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
 
 // ===== QUICK ADD STUDENT MODAL =====
 function openQuickAddModal() {
@@ -632,13 +765,14 @@ function filterVerifiers() {
 }
 
 // ===== LOGIN =====
-document.getElementById('loginForm').addEventListener('submit', function(e) {
+document.getElementById('loginForm').addEventListener('submit', async function(e) {
     e.preventDefault();
     clearAllErrors('loginForm');
     let valid = true;
     const email = document.getElementById('loginEmail').value.trim();
     const password = document.getElementById('loginPassword').value.trim();
     const captchaInput = document.getElementById('loginCaptchaInput').value.trim();
+    const rememberMe = document.querySelector('#loginForm .remember-me input[type="checkbox"]')?.checked || false;
 
     if (!email || !isValidEmail(email)) { showError('loginEmailErr'); document.getElementById('loginEmail').classList.add('error'); valid = false; }
     if (!password) { showError('loginPasswordErr','Please enter your password'); document.getElementById('loginPassword').classList.add('error'); valid = false; }
@@ -647,13 +781,28 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
 
     if (!valid) { shakeForm('loginForm'); return; }
 
-    showToast('Login successful! Redirecting...');
-    setTimeout(() => showDashboard(email), 1200);
-    generateCaptcha('login');
+    const btn = this.querySelector('button[type="submit"]');
+    btn.disabled = true; btn.textContent = 'Signing in…';
+
+    try {
+        const res  = await fetch('/api/auth/login', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({email, password, remember_me: rememberMe}) });
+        const data = await res.json();
+        if (data.success) {
+            showToast('Login successful! Redirecting...');
+            generateCaptcha('login');
+            setTimeout(() => showDashboard(data.admin.email), 1200);
+        } else {
+            showError('loginPasswordErr', data.message || 'Invalid email or password.');
+            document.getElementById('loginEmail').classList.add('error');
+            document.getElementById('loginPassword').classList.add('error');
+            shakeForm('loginForm'); generateCaptcha('login');
+        }
+    } catch(err) { showError('loginPasswordErr','Server error. Please try again.'); shakeForm('loginForm'); }
+    finally { btn.disabled = false; btn.textContent = 'Sign In'; }
 });
 
 // ===== SIGNUP =====
-document.getElementById('signupForm').addEventListener('submit', function(e) {
+document.getElementById('signupForm').addEventListener('submit', async function(e) {
     e.preventDefault();
     clearAllErrors('signupForm');
     let valid = true;
@@ -671,14 +820,31 @@ document.getElementById('signupForm').addEventListener('submit', function(e) {
     else if (captchaInput !== captchas.signup) { showError('signupCaptchaErr','Captcha does not match.'); valid = false; generateCaptcha('signup'); }
 
     if (!valid) { shakeForm('signupForm'); return; }
-    showToast('Account created successfully!');
-    generateCaptcha('signup');
-    this.reset(); checkStrength('');
-    setTimeout(() => showPage('loginPage'), 1500);
+
+    const btn = this.querySelector('button[type="submit"]');
+    btn.disabled = true; btn.textContent = 'Creating Account…';
+
+    try {
+        const res  = await fetch('/api/auth/signup', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({full_name:name, email, password, confirm_password:confirmPassword}) });
+        const data = await res.json();
+        if (data.success) {
+            showToast('Account created successfully!');
+            generateCaptcha('signup'); this.reset(); checkStrength('');
+            setTimeout(() => showPage('loginPage'), 1500);
+        } else {
+            const errs = data.errors || {};
+            if (errs.full_name)        { showError('signupNameErr', errs.full_name); document.getElementById('signupName').classList.add('error'); }
+            if (errs.email)            { showError('signupEmailErr', errs.email); document.getElementById('signupEmail').classList.add('error'); }
+            if (errs.password)         { showError('signupPasswordErr', errs.password); document.getElementById('signupPassword').classList.add('error'); }
+            if (errs.confirm_password) { showError('signupConfirmPasswordErr', errs.confirm_password); document.getElementById('signupConfirmPassword').classList.add('error'); }
+            shakeForm('signupForm'); generateCaptcha('signup');
+        }
+    } catch(err) { showError('signupNameErr','Server error. Please try again.'); shakeForm('signupForm'); }
+    finally { btn.disabled = false; btn.textContent = 'Create Account'; }
 });
 
 // ===== FORGOT =====
-document.getElementById('forgotForm').addEventListener('submit', function(e) {
+document.getElementById('forgotForm').addEventListener('submit', async function(e) {
     e.preventDefault();
     clearAllErrors('forgotForm');
     let valid = true;
@@ -690,10 +856,36 @@ document.getElementById('forgotForm').addEventListener('submit', function(e) {
     else if (captchaInput !== captchas.forgot) { showError('forgotCaptchaErr','Captcha does not match.'); valid = false; generateCaptcha('forgot'); }
 
     if (!valid) { shakeForm('forgotForm'); return; }
-    showToast('Reset link sent to your email!');
-    generateCaptcha('forgot');
-    this.reset();
+
+    const btn = this.querySelector('button[type="submit"]');
+    btn.disabled = true; btn.textContent = 'Sending…';
+
+    try {
+        const res  = await fetch('/api/auth/forgot-password', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({email}) });
+        const data = await res.json();
+        showToast(data.message || 'Reset link sent to your email!');
+        generateCaptcha('forgot'); this.reset();
+    } catch(err) { showToast('Reset link sent to your email!'); generateCaptcha('forgot'); this.reset(); }
+    finally { btn.disabled = false; btn.textContent = 'Send Reset Link'; }
 });
+
+// ===== SESSION RESTORE on page load =====
+(async function restoreSession() {
+    try {
+        const res  = await fetch('/api/auth/session');
+        const data = await res.json();
+        if (data.logged_in && data.admin) {
+            showDashboard(data.admin.email);
+        }
+    } catch(e) { /* stay on login */ }
+})();
+
+// ===== LOGOUT wired to backend =====
+const _origHandleLogout = handleLogout;
+handleLogout = async function() {
+    try { await fetch('/api/auth/logout', { method: 'POST' }); } catch(e) {}
+    _origHandleLogout();
+};
 
 // Clear errors on input
 document.querySelectorAll('input').forEach(input => {
