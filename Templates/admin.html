@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Portal – Sky Foundation</title>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="admin.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}">
 </head>
 <body>
 
@@ -1287,175 +1287,14 @@
                         </button>
                     </div>
 
-                    <div class="opportunities-grid">
-                        <!-- Opportunity Card 1 -->
-                        <div class="opportunity-card">
-                            <div class="opportunity-card-header">
-                                <h5>Full Stack Web Development Program</h5>
-                                <div class="opportunity-meta">
-                                    <span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>6 Months</span>
-                                    <span><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Feb 2026</span>
-                                </div>
-                            </div>
-                            <p class="opportunity-description">Comprehensive program covering HTML, CSS, JavaScript, React, Node.js, and MongoDB with real-world project experience.</p>
-                            <div class="opportunity-skills">
-                                <div class="opportunity-skills-label">Skills You'll Gain</div>
-                                <div class="skills-tags">
-                                    <span class="skill-tag">HTML/CSS</span>
-                                    <span class="skill-tag">JavaScript</span>
-                                    <span class="skill-tag">React</span>
-                                    <span class="skill-tag">Node.js</span>
-                                    <span class="skill-tag">MongoDB</span>
-                                </div>
-                            </div>
-                            <div class="opportunity-footer">
-                                <span class="applicants-count">45 applicants</span>
-                                <button class="view-course-btn" style="width: auto; padding: 8px 16px;" onclick="openOpportunityDetails('Full Stack Web Development Program', {
-                                    duration: '6 Months',
-                                    startDate: 'Feb 2026',
-                                    description: 'Comprehensive program covering HTML, CSS, JavaScript, React, Node.js, and MongoDB with real-world project experience.',
-                                    skills: ['HTML/CSS', 'JavaScript', 'React', 'Node.js', 'MongoDB'],
-                                    applicants: 45,
-                                    futureOpportunities: 'Graduates can pursue roles as Full Stack Developers, Frontend Developers, Backend Developers, or Software Engineers at top tech companies.',
-                                    prerequisites: 'Basic programming knowledge recommended.'
-                                })">View Details</button>
-                            </div>
-                        </div>
-
-                        <!-- Opportunity Card 2 -->
-                        <div class="opportunity-card">
-                            <div class="opportunity-card-header">
-                                <h5>Data Science & AI Certification</h5>
-                                <div class="opportunity-meta">
-                                    <span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>4 Months</span>
-                                    <span><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Mar 2026</span>
-                                </div>
-                            </div>
-                            <p class="opportunity-description">Learn Python programming, machine learning algorithms, deep learning, and natural language processing with industry experts.</p>
-                            <div class="opportunity-skills">
-                                <div class="opportunity-skills-label">Skills You'll Gain</div>
-                                <div class="skills-tags">
-                                    <span class="skill-tag">Python</span>
-                                    <span class="skill-tag">Machine Learning</span>
-                                    <span class="skill-tag">TensorFlow</span>
-                                    <span class="skill-tag">Data Analysis</span>
-                                </div>
-                            </div>
-                            <div class="opportunity-footer">
-                                <span class="applicants-count">67 applicants</span>
-                                <button class="view-course-btn" style="width: auto; padding: 8px 16px;" onclick="openOpportunityDetails('Data Science & AI Certification', {
-                                    duration: '4 Months',
-                                    startDate: 'Mar 2026',
-                                    description: 'Learn Python programming, machine learning algorithms, deep learning, and natural language processing with industry experts.',
-                                    skills: ['Python', 'Machine Learning', 'TensorFlow', 'Data Analysis'],
-                                    applicants: 67,
-                                    futureOpportunities: 'Career paths include Data Scientist, AI Engineer, Machine Learning Engineer, or Data Analyst.',
-                                    prerequisites: 'Basic programming knowledge recommended.'
-                                })">View Details</button>
-                            </div>
-                        </div>
-
-                        <!-- Opportunity Card 3 -->
-                        <div class="opportunity-card">
-                            <div class="opportunity-card-header">
-                                <h5>Digital Marketing Specialist</h5>
-                                <div class="opportunity-meta">
-                                    <span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>3 Months</span>
-                                    <span><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Feb 2026</span>
-                                </div>
-                            </div>
-                            <p class="opportunity-description">Master SEO, social media marketing, content strategy, email campaigns, and analytics with hands-on projects.</p>
-                            <div class="opportunity-skills">
-                                <div class="opportunity-skills-label">Skills You'll Gain</div>
-                                <div class="skills-tags">
-                                    <span class="skill-tag">SEO</span>
-                                    <span class="skill-tag">Social Media</span>
-                                    <span class="skill-tag">Content Marketing</span>
-                                    <span class="skill-tag">Analytics</span>
-                                </div>
-                            </div>
-                            <div class="opportunity-footer">
-                                <span class="applicants-count">89 applicants</span>
-                                <button class="view-course-btn" style="width: auto; padding: 8px 16px;" onclick="openOpportunityDetails('Digital Marketing Specialist', {
-                                    duration: '3 Months',
-                                    startDate: 'Feb 2026',
-                                    description: 'Master SEO, social media marketing, content strategy, email campaigns, and analytics with hands-on projects.',
-                                    skills: ['SEO', 'Social Media', 'Content Marketing', 'Analytics'],
-                                    applicants: 89,
-                                    futureOpportunities: 'Graduates can work as Digital Marketing Specialists, SEO Managers, Content Strategists, or Social Media Managers.',
-                                    prerequisites: 'No prior marketing experience required.'
-                                })">View Details</button>
-                            </div>
-                        </div>
-
-                        <!-- Opportunity Card 4 -->
-                        <div class="opportunity-card">
-                            <div class="opportunity-card-header">
-                                <h5>Cybersecurity Professional</h5>
-                                <div class="opportunity-meta">
-                                    <span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>5 Months</span>
-                                    <span><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Apr 2026</span>
-                                </div>
-                            </div>
-                            <p class="opportunity-description">Learn network security, ethical hacking, penetration testing, and security architecture with certified instructors.</p>
-                            <div class="opportunity-skills">
-                                <div class="opportunity-skills-label">Skills You'll Gain</div>
-                                <div class="skills-tags">
-                                    <span class="skill-tag">Network Security</span>
-                                    <span class="skill-tag">Ethical Hacking</span>
-                                    <span class="skill-tag">Penetration Testing</span>
-                                    <span class="skill-tag">Risk Management</span>
-                                </div>
-                            </div>
-                            <div class="opportunity-footer">
-                                <span class="applicants-count">52 applicants</span>
-                                <button class="view-course-btn" style="width: auto; padding: 8px 16px;" onclick="openOpportunityDetails('Cybersecurity Professional', {
-                                    duration: '5 Months',
-                                    startDate: 'Apr 2026',
-                                    description: 'Learn network security, ethical hacking, penetration testing, and security architecture with certified instructors.',
-                                    skills: ['Network Security', 'Ethical Hacking', 'Penetration Testing', 'Risk Management'],
-                                    applicants: 52,
-                                    futureOpportunities: 'Career paths include Cybersecurity Analyst, Security Engineer, Penetration Tester, or Security Consultant.',
-                                    prerequisites: 'Basic IT knowledge recommended.'
-                                })">View Details</button>
-                            </div>
-                        </div>
-
-                        <!-- Opportunity Card 5 -->
-                        <div class="opportunity-card">
-                            <div class="opportunity-card-header">
-                                <h5>Cloud Architecture & DevOps</h5>
-                                <div class="opportunity-meta">
-                                    <span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>4 Months</span>
-                                    <span><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Mar 2026</span>
-                                </div>
-                            </div>
-                            <p class="opportunity-description">Master AWS, Azure, Docker, Kubernetes, CI/CD pipelines, and infrastructure automation for modern cloud solutions.</p>
-                            <div class="opportunity-skills">
-                                <div class="opportunity-skills-label">Skills You'll Gain</div>
-                                <div class="skills-tags">
-                                    <span class="skill-tag">AWS</span>
-                                    <span class="skill-tag">Docker</span>
-                                    <span class="skill-tag">Kubernetes</span>
-                                    <span class="skill-tag">CI/CD</span>
-                                    <span class="skill-tag">Terraform</span>
-                                </div>
-                            </div>
-                            <div class="opportunity-footer">
-                                <span class="applicants-count">38 applicants</span>
-                                <button class="view-course-btn" style="width: auto; padding: 8px 16px;" onclick="openOpportunityDetails('Cloud Architecture & DevOps', {
-                                    duration: '4 Months',
-                                    startDate: 'Mar 2026',
-                                    description: 'Master AWS, Azure, Docker, Kubernetes, CI/CD pipelines, and infrastructure automation for modern cloud solutions.',
-                                    skills: ['AWS', 'Docker', 'Kubernetes', 'CI/CD', 'Terraform'],
-                                    applicants: 38,
-                                    futureOpportunities: 'Graduates can become Cloud Architects, DevOps Engineers, Site Reliability Engineers, or Cloud Consultants.',
-                                    prerequisites: 'Basic understanding of programming and IT infrastructure.'
-                                })">View Details</button>
-                            </div>
-                        </div>
+                    <div class="opportunities-grid" id="opportunitiesGrid">
+                        <!-- Cards rendered dynamically by admin.js -->
                     </div>
-                </div>
+                    <div id="oppEmptyState" style="display:none; text-align:center; padding:60px 20px; color:var(--qf-text-light);">
+                        <svg viewBox="0 0 24 24" style="width:48px;height:48px;stroke:var(--qf-text-light);fill:none;stroke-width:1.5;margin-bottom:16px;"><path d="M9 17H5a2 2 0 0 0-2 2v0a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v0a2 2 0 0 0-2-2h-4"/><rect x="9" y="3" width="6" height="14" rx="1"/></svg>
+                        <p style="font-size:16px;font-weight:600;color:var(--qf-text);margin-bottom:8px;">No opportunities yet</p>
+                        <p style="font-size:13px;">Click <strong>Add New Opportunity</strong> to create your first one.</p>
+                    </div>                </div>
 
                 <!-- REPORTS AND ANALYTICS SECTION -->
                 <div class="dash-section" id="reportsSection">
@@ -1759,6 +1598,10 @@
                         <span style="font-size: 12px; color: var(--qf-text-light); display: block;">Applicants</span>
                         <span style="font-size: 16px; font-weight: 600; color: var(--qf-text);" id="opportunityDetailApplicants">45</span>
                     </div>
+                    <div style="background: var(--qf-mint-pale); padding: 10px 16px; border-radius: 8px;">
+                        <span style="font-size: 12px; color: var(--qf-text-light); display: block;">Category</span>
+                        <span style="font-size: 16px; font-weight: 600; color: var(--qf-text);" id="opportunityDetailCategory">—</span>
+                    </div>
                 </div>
                 
                 <div style="margin-bottom: 16px;">
@@ -1923,12 +1766,13 @@
     <div class="modal" id="opportunityModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>Add New Opportunity</h3>
+                <h3 id="opportunityModalTitle">Add New Opportunity</h3>
                 <button class="close-modal" onclick="closeOpportunityModal()">
                     <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                 </button>
             </div>
             <form id="opportunityForm">
+                <input type="hidden" id="oppEditId" value="">
                 <div class="form-group">
                     <label>Opportunity Name <span class="required">*</span></label>
                     <div class="input-wrap">
@@ -1993,7 +1837,7 @@
                         <input id="oppMaxApplicants" type="number" placeholder="e.g. 100">
                     </div>
                 </div>
-                <button type="submit" class="btn-primary">Create Opportunity</button>
+                <button type="submit" class="btn-primary" id="oppSubmitBtn">Create Opportunity</button>
             </form>
         </div>
     </div>
@@ -2239,6 +2083,30 @@
     </div>
 
 
-    <script src="admin.js"></script>
+    <script src="{{ url_for('static', filename='admin.js') }}"></script>
+    <!-- Delete Confirmation Modal -->
+    <div class="modal" id="deleteConfirmModal">
+        <div class="modal-content" style="max-width: 420px; text-align: center;">
+            <div class="modal-header" style="justify-content: center; border-bottom: none; padding-bottom: 0;">
+                <h3 style="color: var(--qf-red);">Delete Opportunity</h3>
+            </div>
+            <div style="padding: 16px 24px 24px;">
+                <p style="color: var(--qf-text); font-size: 14px; line-height: 1.6; margin-bottom: 24px;">
+                    Are you sure you want to permanently delete <strong id="deleteConfirmName"></strong>?
+                    This action cannot be undone.
+                </p>
+                <div class="modal-actions" style="justify-content: center; gap: 12px;">
+                    <button class="modal-action-btn" id="deleteConfirmCancel"
+                        style="background: var(--qf-bg); color: var(--qf-text); border: 1px solid var(--qf-border);">
+                        Cancel
+                    </button>
+                    <button class="modal-action-btn reject" id="deleteConfirmProceed">
+                        Yes, Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </body>
 </html>
